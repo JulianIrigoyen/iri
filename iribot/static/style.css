@@ -1,134 +1,147 @@
+:root {
+  --font-main: 'Roboto', sans-serif;
+  --font-title: 'Roboto Slab', serif;
+  --color-main: #34495e;
+  --color-link: #3498db;
+  --color-hover: #1a5276;
+  --color-accent: #ecf0f1;
+  --color-border: #bdc3c7;
+  --color-flash-bg: #d6eaf8;
+  --color-flash-border: #5dade2;
+  --color-muted: #5d6d7e;
+  --color-danger: #e74c3c;
+  --color-submit: #3498db;
+  --shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 html {
-    font-family: sans-serif;
-    background: #eee;
-    padding: 1rem;
-  }
-  
-  body {
-    max-width: 960px;
-    margin: 0 auto;
-    background: white;
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    font-family: serif;
-    color: #377ba8;
-    margin: 1rem 0;
-  }
-  
-  a {
-    color: #377ba8;
-  }
-  
-  hr {
-    border: none;
-    border-top: 1px solid lightgray;
-  }
-  
-  nav {
-    background: lightgray;
-    display: flex;
-    align-items: center;
-    padding: 0 0.5rem;
-  }
-  
-  nav h1 {
-    flex: auto;
-    margin: 0;
-  }
-  
-  nav h1 a {
-    text-decoration: none;
-    padding: 0.25rem 0.5rem;
-  }
-  
-  nav ul  {
-    display: flex;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  
-  nav ul li a, nav ul li span, header .action {
-    display: block;
-    padding: 0.5rem;
-  }
-  
-  .content {
-    padding: 0 1rem 1rem;
-  }
-  
-  .content > header {
-    border-bottom: 1px solid lightgray;
-    display: flex;
-    align-items: flex-end;
-  }
-  
-  .content > header h1 {
-    flex: auto;
-    margin: 1rem 0 0.25rem 0;
-  }
-  
-  .flash {
-    margin: 1em 0;
-    padding: 1em;
-    background: #cae6f6;
-    border: 1px solid #377ba8;
-  }
-  
-  .post > header {
-    display: flex;
-    align-items: flex-end;
-    font-size: 0.85em;
-  }
-  
-  .post > header > div:first-of-type {
-    flex: auto;
-  }
-  
-  .post > header h1 {
-    font-size: 1.5em;
-    margin-bottom: 0;
-  }
-  
-  .post .about {
-    color: slategray;
-    font-style: italic;
-  }
-  
-  .post .body {
-    white-space: pre-line;
-  }
-  
-  .content:last-child {
-    margin-bottom: 0;
-  }
-  
-  .content form {
-    margin: 1em 0;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .content label {
-    font-weight: bold;
-    margin-bottom: 0.5em;
-  }
-  
-  .content input, .content textarea {
-    margin-bottom: 1em;
-  }
-  
-  .content textarea {
-    min-height: 12em;
-    resize: vertical;
-  }
-  
-  input.danger {
-    color: #cc2f2e;
-  }
-  
-  input[type=submit] {
-    align-self: start;
-    min-width: 10em;
-  }
+  font-family: var(--font-main);
+  background: #f5f5f5;
+  padding: 1rem;
+  transition: var(--transition);
+}
+
+body {
+  max-width: 960px;
+  margin: 0 auto;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-title);
+  color: var(--color-main);
+  margin: 1rem 0;
+}
+
+a {
+  color: var(--color-link);
+  transition: color var(--transition);
+}
+
+a:hover {
+  color: var(--color-hover);
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 2rem 0;
+}
+
+nav {
+  background: var(--color-accent);
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+}
+
+nav h1 a {
+  text-decoration: none;
+  color: var(--color-main);
+}
+
+nav ul  {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+nav ul li a {
+  padding: 0.5rem;
+  transition: background-color var(--transition);
+}
+
+.content {
+  padding: 1rem;
+}
+
+.content > header {
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+}
+
+.flash {
+  margin: 1em 0;
+  padding: 1em;
+  background: var(--color-flash-bg);
+  border: 1px solid var(--color-flash-border);
+  border-radius: 10px;
+}
+
+.post .about {
+  color: var(--color-muted);
+  font-style: italic;
+}
+
+.content form {
+  margin: 1em 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.content label {
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
+
+.content input, .content textarea {
+  margin-bottom: 1em;
+  border: 1px solid var(--color-border);
+  transition: border-color var(--transition);
+  padding: 0.5em;
+  border-radius: 5px;
+}
+
+.content input:focus, .content textarea:focus {
+  border-color: var(--color-link);
+}
+
+input[type=submit] {
+  align-self: start;
+  min-width: 10em;
+  background-color: var(--color-submit);
+  color: #ffffff;
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: none;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+input[type=submit]:hover {
+  background-color: var(--color-hover);
+}
+
+input.danger {
+  color: var(--color-danger);
+}
