@@ -5,11 +5,20 @@ const BlogPostContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 1.5rem;
+  padding: 2rem;
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0px 3px 15px rgba(0,0,0,0.2);
+  transition: transform var(--transition-speed);
+
+  &:hover {
+    transform: translateY(-10px);
+  }
 `;
 
 const Title = styled.h2`
   font-size: 1.5rem;
+  color: var(--color-primary);
   margin-bottom: 0.5rem;
 `;
 
@@ -19,12 +28,17 @@ const Body = styled.p`
 `;
 
 const DeleteButton = styled.button`
-  background-color: #ff0000;
+  background-color: var(--color-btn);
   color: #ffffff;
   border: none;
   padding: 0.5rem 1rem;
-  cursor: pointer;
   margin-top: 0.5rem;
+  border-radius: 5px;
+  transition: background-color var(--transition-speed);
+
+  &:hover {
+    background-color: darken(var(--color-btn), 10%);
+  }
 `;
 
 const BlogPost = ({ post, onDelete }) => {

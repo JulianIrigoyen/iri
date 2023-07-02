@@ -1,5 +1,6 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import Gpt3Widget from "./Gpt3Widget";
 
 const Main = styled.main`
   background-color: #ffffff;
@@ -13,47 +14,12 @@ const Main = styled.main`
 `;
 
 export default function MainComponent() {
-  const [question, setQuestion] = useState("");
-  const [response, setResponse] = useState(null);
-
-  const handleQuestionChange = (e) => {
-    setQuestion(e.target.value);
-  }
-
-const askGPT3 = () => {
-        fetch('/ask', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({question})
-        })
-        .then(response => {
-            console.log('got response')
-            return response.json()
-        })
-        .then(data => {
-            console.log(data)
-            setResponse(data.response);
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
-    }
-
   return (
     <Main>
       <p>
-        This is the main content section.
+        Start getting insight now
       </p>
-      <input
-        type="text"
-        value={question}
-        onChange={handleQuestionChange}
-        placeholder="Ask a question"
-      />
-      <button onClick={askGPT3}>Ask GPT-3</button>
-      {response && <p>{response}</p>}
+      <Gpt3Widget />
     </Main>
   );
 }

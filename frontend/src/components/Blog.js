@@ -1,5 +1,16 @@
 import React, {useState, useEffect} from 'react';
 import BlogPost from './BlogPost';
+import styled from 'styled-components';
+
+const BlogContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  gap: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+`;
 
 const Blog = () => {
     const [posts, setPosts] = useState([]);
@@ -24,13 +35,13 @@ const Blog = () => {
             .catch(error => console.error('Error:', error));
     };
 
-    return (
-        <div>
-            {posts.map((post) => (
-                <BlogPost key={post.id} post={post} onDelete={handleDelete}/>
-            ))}
-        </div>
-    );
+return (
+    <BlogContainer>
+        {posts.map((post) => (
+            <BlogPost key={post.id} post={post} onDelete={handleDelete} />
+        ))}
+    </BlogContainer>
+  );
 };
 
 export default Blog;

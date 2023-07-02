@@ -14,7 +14,7 @@ const Header = styled.header`
 export default function() {
   return (
     <Header>
-      <h1>Welcome to My Website</h1>
+      <h1>Iribot 0.1</h1>
     </Header>
   );
 }

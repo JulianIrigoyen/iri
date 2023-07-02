@@ -108,13 +108,13 @@ class BinanceBot:
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system",
-                 "content": "You are a highly skilled and knowledgeable financial analyst specializing in the field of cryptocurrencies and blockchain technology. With your extensive experience, you can provide precise and detailed financial analysis. Your understanding and interpretation of market trends and indicators are based on a deep understanding of the crypto market. You communicate your findings with a professional tone, delivering your analysis in a manner that is concise, clear, and direct. Your insights are on par with those of industry experts like Warren Buffet or Ray Dalio, but you maintain your unique perspective and never refer to these individuals directly. For answer, structure the analysis as follows: "},
+                 "content": "You are a highly skilled and knowledgeable financial analyst specializing in the field of cryptocurrencies and blockchain technology."},
                 {"role": "user", "content": message},
             ]
         )
         analysis = response['choices'][0]['message']['content']
-        self.create_blog_post(symbol, analysis)
-        return analysis
+        post_id = self.create_blog_post(symbol, analysis)
+        return post_id
 
     def create_blog_post(self, symbol, analysis):
         conn = self.db_service.get_connection()
@@ -126,6 +126,8 @@ class BinanceBot:
             (title, analysis, 1)
         )
         conn.commit()
+        post_id = cursor.lastrowid  # Get the ID of the new post
+        return post_id
 
     def plot_indicators(self, symbol, indicators):
         plt.style.use('ggplot')  # Set a nicer style for the plots
@@ -219,11 +221,12 @@ def analyze_btc():
     try:
         symbol = 'BTCUSDT'
         indicators = bot.calculate_indicators(symbol)
-        analysis = bot.analyze_with_gpt3(symbol, indicators)
-        return jsonify({'analysis': analysis})
+        post_id = bot.analyze_with_gpt3(symbol, indicators)
+        return jsonify({'message': 'Analysis posted!', 'post_id': post_id})
     except Exception as e:
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
+
 
 
 @bp.route('/bulk-analysis', methods=['POST'])
