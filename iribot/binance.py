@@ -9,10 +9,11 @@ import pandas_ta as ta
 from binance.spot import Spot
 from flask import Blueprint, request, jsonify
 import traceback
-
+from .db_service import DatabaseService
 
 class BinanceBot:
     def __init__(self, api_key, api_secret, openai_key):
+        self.db_service = DatabaseService()
         self.client = Spot(api_key=api_key, api_secret=api_secret)
         self.openai_key = openai_key
         openai.api_key = self.openai_key
@@ -41,6 +42,9 @@ class BinanceBot:
         support = None
         resistance = None
 
+        conn = self.db_service.get_connection()
+        cursor = conn.cursor()
+
         for _, row in data[['timestamp', 'close', 'EMA20', 'EMA7', 'EMA1', 'RSI']].tail().iterrows():
             timestamp = row['timestamp']
             date = pd.to_datetime(timestamp, unit='ms')  # Convert milliseconds to pandas datetime
@@ -64,8 +68,7 @@ class BinanceBot:
             resistance = min_price + (max_price - min_price) * 0.618  # 61.8% Fibonacci retracement level
 
             indicator = {
-                'timestamp': timestamp,
-                'date': date,
+                'date': str(date),
                 'close': row['close'],
                 'EMA20': row['EMA20'],
                 'EMA7': row['EMA7'],
@@ -77,6 +80,24 @@ class BinanceBot:
             }
 
             indicators.append(indicator)
+            # Save the indicator in the database
+            print('saving indicator')
+            cursor.execute("""
+                            INSERT INTO indicators (
+                                 date, close, EMA20, EMA7, EMA1, RSI, status, support, resistance
+                            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        """, (
+                indicator['date'],
+                indicator['close'],
+                indicator['EMA20'],
+                indicator['EMA7'],
+                indicator['EMA1'],
+                indicator['RSI'],
+                indicator['status'],
+                indicator['support'],
+                indicator['resistance']
+            ))
+            conn.commit()
 
         return indicators
 
@@ -91,7 +112,20 @@ class BinanceBot:
                 {"role": "user", "content": message},
             ]
         )
-        return response['choices'][0]['message']['content']
+        analysis = response['choices'][0]['message']['content']
+        self.create_blog_post(symbol, analysis)
+        return analysis
+
+    def create_blog_post(self, symbol, analysis):
+        conn = self.db_service.get_connection()
+        cursor = conn.cursor()
+        title = f"Analysis of {symbol}"
+        cursor.execute(
+            'INSERT INTO post (title, body, author_id)'
+            ' VALUES (?, ?, ?)',
+            (title, analysis, 1)
+        )
+        conn.commit()
 
     def plot_indicators(self, symbol, indicators):
         plt.style.use('ggplot')  # Set a nicer style for the plots
@@ -145,10 +179,21 @@ def ask_gpt3():
     if not question:
         return jsonify({'error': 'Missing question parameter'}), 400
     try:
-        gpt3_response = bot.analyze_with_gpt3('BTCUSDT', question)  # Assuming 'BTCUSDT' is the symbol
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system",
+                 "content": "You are a helpful assistant."},
+                {"role": "user", "content": question},
+            ]
+        )
+        gpt3_response = response['choices'][0]['message']['content']
         return jsonify({'response': gpt3_response})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+
 
 
 @bp.route('/btcprice', methods=['GET'])
@@ -200,3 +245,5 @@ def analyze_multiple_symbols():
             results[symbol] = {'error': str(e)}
 
     return jsonify(results)
+
+

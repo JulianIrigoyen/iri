@@ -98,9 +98,14 @@ nav ul li a {
   border-radius: 10px;
 }
 
+.post-container {
+  margin-top: 2rem;
+}
+
 .post .about {
   color: var(--color-muted);
   font-style: italic;
+  margin-top: 0.5rem;
 }
 
 .content form {
@@ -127,7 +132,7 @@ nav ul li a {
 }
 
 input[type=submit] {
-  align-self: start;
+  align-self: flex-start;
   min-width: 10em;
   background-color: var(--color-submit);
   color: #ffffff;
@@ -144,4 +149,115 @@ input[type=submit]:hover {
 
 input.danger {
   color: var(--color-danger);
+}
+
+.post-container {
+  max-height: 400px; /* Adjust the max-height value as needed */
+  overflow-y: auto;
+  padding-right: 20px; /* Add a bit of padding to prevent content from being hidden behind the scrollbar */
+}
+
+.scrollable {
+  padding-right: 20px; /* Add a bit of padding to prevent content from being hidden behind the scrollbar */
+}
+
+/* Optional: Style the scrollbar if needed */
+.post-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.post-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.post-container::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+.post-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.post-container {
+  margin-top: 2rem;
+}
+
+h1 span {
+  margin-right: 1rem;
+}
+
+h1 .action {
+  background-color: var(--color-submit);
+  color: #ffffff;
+  padding: 0.5rem;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+h1 .action:hover {
+  background-color: var(--color-hover);
+}
+
+.post .about {
+  color: var(--color-muted);
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+.action {
+  background-color: var(--color-submit);
+  color: #ffffff;
+  padding: 0.5rem;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.action:hover {
+  background-color: var(--color-hover);
+}
+
+.action + .action {
+  margin-left: 0.5rem; /* Adjust the spacing between the buttons */
+}
+nav {
+  background: var(--color-accent);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+}
+
+.nav-content {
+  display: flex;
+  align-items: center;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+ul li {
+  margin-left: 1rem;
+}
+
+ul li:first-child {
+  margin-left: 0;
+}
+
+ul li a {
+  color: var(--color-main);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+ul li a:hover {
+  color: var(--color-hover);
 }
