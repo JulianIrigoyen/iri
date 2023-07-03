@@ -10,6 +10,8 @@ from binance.spot import Spot
 from flask import Blueprint, request, jsonify
 import traceback
 from .db_service import DatabaseService
+import concurrent.futures
+
 
 class BinanceBot:
     def __init__(self, api_key, api_secret, openai_key):
@@ -108,13 +110,13 @@ class BinanceBot:
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system",
-                 "content": "You are a highly skilled and knowledgeable financial analyst specializing in the field of cryptocurrencies and blockchain technology."},
+                 "content": "You are a highly skilled and knowledgeable financial analyst specializing in the field of cryptocurrencies and blockchain technology. You do not explain the indicators as you assume your interlocutor understands them. You make brief objective statements about the indicators you receive."},
                 {"role": "user", "content": message},
             ]
         )
         analysis = response['choices'][0]['message']['content']
         post_id = self.create_blog_post(symbol, analysis)
-        return post_id
+        return post_id, analysis, indicators
 
     def create_blog_post(self, symbol, analysis):
         conn = self.db_service.get_connection()
@@ -207,13 +209,27 @@ def get_btc_price():
         return jsonify({'error': str(e)}), 500
 
 
-@bp.route('/calculateindicators/<symbol>', methods=['GET'])
+@bp.route('/analyze/<symbol>', methods=['GET'])
 def calculate_indicators(symbol):
     try:
-        indicators = bot.calculate_indicators(symbol)
-        return jsonify({'indicators': indicators})
+        indicators = bot.calculate_indicators(f'{symbol}USDT')
+        print(f'Analyzing {symbol}')
+        message = f"The current price of {symbol} is {indicators[-1]['close']}. The EMA20 is {indicators[-1]['EMA20']}, the EMA7 is {indicators[-1]['EMA7']}, the EMA1 is {indicators[-1]['EMA1']}, and the RSI is {indicators[-1]['RSI']}, and the support is {indicators[-1]['support']}, and the resistance is {indicators[-1]['resistance']}. Can you analyze this data? Make a bold statement about it at the end, but be subtle about it. Quote a respected investors and economists at the end. Write this as a short article.  "
+        print(message)
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system",
+                 "content": "You are a highly skilled and knowledgeable financial analyst specializing in the field of cryptocurrencies and blockchain technology. You do not explain the indicators as you assume your interlocutor understands them. You make brief objective statements about the indicators you receive."},
+                {"role": "user", "content": message},
+            ]
+        )
+        analysis = response['choices'][0]['message']['content']
+        return jsonify({'analysis': analysis})
     except Exception as e:
+        print(f"Exception occurred: {e}")
         return jsonify({'error': str(e)}), 500
+
 
 
 @bp.route('/analyze-btc', methods=['GET'])
@@ -230,7 +246,7 @@ def analyze_btc():
 
 
 @bp.route('/bulk-analysis', methods=['POST'])
-def analyze_multiple_symbols():
+def bulk_analysis():
     symbols = request.json.get('symbols')
     if not symbols:
         return jsonify({'error': 'Missing symbols parameter'}), 400
@@ -248,5 +264,55 @@ def analyze_multiple_symbols():
             results[symbol] = {'error': str(e)}
 
     return jsonify(results)
+
+
+def calculate_and_analyze(symbol):
+    try:
+        indicators = bot.calculate_indicators(f'{symbol}USDT') # Binance API expects USDT suffixed symbols
+        post_id, analysis, indicators = bot.analyze_with_gpt3(symbol, indicators)
+        return symbol, analysis
+    except Exception as e:
+        return symbol, {'error': str(e)}
+
+@bp.route('/detailed-report', methods=['POST'])
+def detailed_report():
+    symbols = request.json.get('symbols')
+    if not symbols:
+        return jsonify({'error': 'Missing symbols parameter'}), 400
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        future_to_symbol = {executor.submit(calculate_and_analyze, symbol): symbol for symbol in symbols}
+        analyses = {}
+        for future in concurrent.futures.as_completed(future_to_symbol):
+            symbol = future_to_symbol[future]
+            try:
+                analyses[symbol] = future.result()[1]
+                print(analyses)
+            except Exception as e:
+                analyses[symbol] = {'error': str(e)}
+
+    summary_message = ' '.join([f"The analysis for {symbol} is: {analysis} " for symbol, analysis in analyses.items() if isinstance(analysis, str) and 'error' not in analysis])
+    print(summary_message)  # Add this line
+
+    if len(summary_message.strip()) == 0:
+        return jsonify({'error': 'All symbol analyses failed'}), 500
+
+    summary_message += " Can you summarize these analyses?"
+
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system",
+             "content": "You are a highly skilled financial analyst specializing in summarizing complex information."},
+            {"role": "user", "content": summary_message},
+        ]
+    )
+    summary = response['choices'][0]['message']['content']
+
+    post_id = bot.create_blog_post("Detailed Analysis Summary", summary)
+
+    return jsonify({'summary': summary, 'post_id': post_id})
+
+
 
 

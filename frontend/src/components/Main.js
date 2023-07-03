@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import Gpt3Widget from "./Gpt3Widget";
+import GPTWidget from "./Gpt3Widget";
 
 const Main = styled.main`
   background-color: #ffffff;
@@ -16,10 +16,7 @@ const Main = styled.main`
 export default function MainComponent() {
   return (
     <Main>
-      <p>
-        Start getting insight now
-      </p>
-      <Gpt3Widget />
+      <GPTWidget />
     </Main>
   );
 }

@@ -9,25 +9,27 @@ const NavBar = styled.nav`
   align-items: center;
 `;
 
+
 const NavItem = styled(Link)`
-  color: white;
+  color: #FECF6A; // Fuchsia color
   text-decoration: none;
   transition: color 0.3s ease-in-out;
 
   &:hover {
-    color: #a9a9a9;
+    color: #6A057F; // Turquoise color
   }
 `;
 
 const Navbar = () => {
   return (
     <NavBar>
-      <NavItem to="/about">About</NavItem>
-      <NavItem to="/services">Services</NavItem>
+      <NavItem to="/">Home</NavItem>
+      <NavItem to="/">Services</NavItem>
       <NavItem to="/blog">Blog</NavItem>
-      <NavItem to="/contact">Contact</NavItem>
+      <NavItem to="/">Contact</NavItem>
     </NavBar>
   );
 };
+
 
 export default Navbar;

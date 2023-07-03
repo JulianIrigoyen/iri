@@ -58,7 +58,7 @@ def setup_routes(bot):
             return jsonify({'error': str(e)}), 500
         
     @bp.route('/bulk-analysis', methods=['POST'])
-    def analyze_multiple_symbols():
+    def bulk_analysis():
         symbols = request.json.get('symbols')
         if not symbols:
             return jsonify({'error': 'Missing symbols parameter'}), 400

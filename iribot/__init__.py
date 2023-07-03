@@ -41,6 +41,9 @@ def create_app(test_config=None):
     from . import binance
     app.register_blueprint(binance.bp)
 
+    from . import yahoo
+    app.register_blueprint(yahoo.bp)
+
 
 
 

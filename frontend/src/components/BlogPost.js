@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import { FaTrash, FaThumbsUp, FaRegCommentAlt } from 'react-icons/fa';
 
 const BlogPostContainer = styled.div`
   display: flex;
@@ -10,6 +11,7 @@ const BlogPostContainer = styled.div`
   border-radius: 10px;
   box-shadow: 0px 3px 15px rgba(0,0,0,0.2);
   transition: transform var(--transition-speed);
+  position: relative;
 
   &:hover {
     transform: translateY(-10px);
@@ -27,30 +29,76 @@ const Body = styled.p`
   line-height: 1.5;
 `;
 
-const DeleteButton = styled.button`
-  background-color: var(--color-btn);
-  color: #ffffff;
+const IconButton = styled.button`
+  background-color: transparent;
   border: none;
-  padding: 0.5rem 1rem;
-  margin-top: 0.5rem;
-  border-radius: 5px;
-  transition: background-color var(--transition-speed);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: grey;
+  margin: 0.5rem;
 
   &:hover {
-    background-color: darken(var(--color-btn), 10%);
+    color: #ff0000;
   }
 `;
 
+const CommentInput = styled.input`
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0.5rem;
+  margin: 0.5rem;
+  width: 100%;
+`;
+
+const ActionsContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+`;
+
 const BlogPost = ({ post, onDelete }) => {
+  const [comment, setComment] = useState('');
+
   const handleDelete = () => {
     onDelete(post.id);
+  };
+
+  const handleLike = () => {
+    console.log('Post liked');
+  };
+
+  const handleCommentChange = (e) => {
+    setComment(e.target.value);
+  };
+
+  const handleCommentSubmit = () => {
+    console.log('Comment:', comment);
+    setComment('');
   };
 
   return (
     <BlogPostContainer>
       <Title>{post.title}</Title>
       <Body>{post.body}</Body>
-      <DeleteButton onClick={handleDelete}>Delete</DeleteButton>
+      <ActionsContainer>
+        <CommentInput
+          type="text"
+          value={comment}
+          onChange={handleCommentChange}
+          placeholder="Add a comment"
+        />
+        <div>
+          <IconButton onClick={handleCommentSubmit}>
+            <FaRegCommentAlt size={28} />
+          </IconButton>
+          <IconButton onClick={handleDelete}>
+            <FaTrash size={28} />
+          </IconButton>
+        </div>
+      </ActionsContainer>
     </BlogPostContainer>
   );
 };
