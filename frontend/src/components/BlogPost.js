@@ -3,13 +3,14 @@ import styled from 'styled-components';
 import { FaTrash, FaThumbsUp, FaRegCommentAlt } from 'react-icons/fa';
 
 const BlogPostContainer = styled.div`
+  background-color: #f9fafb;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 2rem;
-  width: 100%;
-  border-radius: 10px;
+  margin-bottom: 1rem;
   box-shadow: 0px 3px 15px rgba(0,0,0,0.2);
+  border-radius: 10px;
   transition: transform var(--transition-speed);
   position: relative;
 
@@ -17,6 +18,7 @@ const BlogPostContainer = styled.div`
     transform: translateY(-10px);
   }
 `;
+
 
 const Title = styled.h2`
   font-size: 1.5rem;
@@ -78,8 +80,7 @@ const BlogPost = ({ post, onDelete }) => {
     console.log('Comment:', comment);
     setComment('');
   };
-
-  return (
+ return (
     <BlogPostContainer>
       <Title>{post.title}</Title>
       <Body>{post.body}</Body>

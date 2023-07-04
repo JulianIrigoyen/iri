@@ -10,6 +10,18 @@ const BlogContainer = styled.div`
   gap: 2rem;
   max-width: 800px;
   margin: 0 auto;
+  border-radius: 10px;
+  box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.2);
+`;
+
+const UserInvitation = styled.div`
+  background-color: #f9fafb;
+  border-radius: 10px;
+  padding: 2rem;
+  margin-bottom: 1rem;
+  box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  font-size: 1.2rem;
 `;
 
 const Blog = () => {
@@ -35,13 +47,16 @@ const Blog = () => {
             .catch(error => console.error('Error:', error));
     };
 
-return (
-    <BlogContainer>
-        {posts.map((post) => (
-            <BlogPost key={post.id} post={post} onDelete={handleDelete} />
-        ))}
-    </BlogContainer>
-  );
+    return (
+        <BlogContainer>
+            <UserInvitation>
+                We'd love to hear your thoughts! Share your views below.
+            </UserInvitation>
+            {posts.map((post) => (
+                <BlogPost key={post.id} post={post} onDelete={handleDelete} />
+            ))}
+        </BlogContainer>
+    );
 };
 
 export default Blog;

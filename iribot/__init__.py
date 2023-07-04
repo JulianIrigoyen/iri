@@ -44,6 +44,12 @@ def create_app(test_config=None):
     from . import yahoo
     app.register_blueprint(yahoo.bp)
 
+    from . import polygon
+    app.register_blueprint(polygon.bp)
+
+    from . import web3boss
+    app.register_blueprint(web3boss.bp)
+
 
 
 

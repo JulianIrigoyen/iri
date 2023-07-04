@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import GPTWidget from "./Gpt3Widget";
+import Sidebar from "./Sidebar";
 
 const Main = styled.main`
   background-color: #ffffff;
@@ -16,6 +17,7 @@ const Main = styled.main`
 export default function MainComponent() {
   return (
     <Main>
+        <Sidebar />
       <GPTWidget />
     </Main>
   );
