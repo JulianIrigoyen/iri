@@ -20,7 +20,7 @@ To execute Iribot:
         pip install -r requirements.txt
     Run the Flask App: 
         Init DB: flask --app iribot init-db
-        Run App: flask --app iribot run --debug --port 3693 (to work with the included Postman collection)
+        Run App (from main directory): flask --app iribot run --debug --port 3693 (to work with the included Postman collection)
 
 To interact with DB:
 
@@ -39,3 +39,8 @@ To interact with DB:
 
     To view the tables in the database:
     ```.tables```
+
+To run the FE (localhost:3000): 
+    cd frontend/src
+    npm install
+    npm start

@@ -11,7 +11,7 @@ from flask import Blueprint, request, jsonify
 import traceback
 from .db_service import DatabaseService
 import concurrent.futures
-
+import json
 
 class BinanceBot:
     def __init__(self, api_key, api_secret, openai_key):
@@ -104,19 +104,50 @@ class BinanceBot:
         return indicators
 
     def analyze_with_gpt3(self, symbol, indicators):
-        message = f"The current price of {symbol} is {indicators[-1]['close']}. The EMA20 is {indicators[-1]['EMA20']}, the EMA7 is {indicators[-1]['EMA7']}, the EMA1 is {indicators[-1]['EMA1']}, and the RSI is {indicators[-1]['RSI']}, and the support is {indicators[-1]['support']}, and the resistance is {indicators[-1]['resistance']}. Can you analyze this data?"
-        print(message)
+        # Prepare the indicators
+        indicators_dict = {
+            'symbol': symbol,
+            'indicators': {
+                'close': indicators[-1]['close'],
+                'EMA20': indicators[-1]['EMA20'],
+                'EMA7': indicators[-1]['EMA7'],
+                'EMA1': indicators[-1]['EMA1'],
+                'RSI': indicators[-1]['RSI'],
+                'support': indicators[-1]['support'],
+                'resistance': indicators[-1]['resistance']
+            }
+        }
+
+        # Load analysis templates from file
+        with open('iribot/gpt-data/analysis-templates.json', 'r') as f:
+            templates = json.load(f)
+
+        indicators_and_templates = {
+            'indicators': indicators_dict,
+            'templates': templates
+        }
+
+        # Convert indicators and templates to a string
+        indicators_and_templates_str = json.dumps(indicators_and_templates)
+
+        # Send request to GPT-3 to generate analysis based on indicators and templates
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system",
-                 "content": "You are a highly skilled and knowledgeable financial analyst specializing in the field of cryptocurrencies and blockchain technology. You do not explain the indicators as you assume your interlocutor understands them. You make brief objective statements about the indicators you receive."},
-                {"role": "user", "content": message},
+                 "content": "You are a highly skilled financial analyst. You are given a symbol, a set of indicators for that symbol, and a set of templates. Your task is to generate a detailed analysis for the provided symbol based on the indicators and the templates. The analysis should be objective, informative, and aligned with the structure of the templates. REMOVE ALL THE TEMPLATES FROM YOUR ANALYSIS."},
+                {"role": "user", "content": indicators_and_templates_str},
             ]
         )
-        analysis = response['choices'][0]['message']['content']
-        post_id = self.create_blog_post(symbol, analysis)
-        return post_id, analysis, indicators
+
+        # Extract the generated analysis
+        generated_analysis = response['choices'][0]['message']['content']
+        print(generated_analysis)
+
+        # Create a blog post
+        post_id = self.create_blog_post(symbol, generated_analysis)
+
+        return post_id, generated_analysis, indicators
 
     def create_blog_post(self, symbol, analysis):
         conn = self.db_service.get_connection()
@@ -214,22 +245,13 @@ def calculate_indicators(symbol):
     try:
         indicators = bot.calculate_indicators(f'{symbol}USDT')
         print(f'Analyzing {symbol}')
-        message = f"The current price of {symbol} is {indicators[-1]['close']}. The EMA20 is {indicators[-1]['EMA20']}, the EMA7 is {indicators[-1]['EMA7']}, the EMA1 is {indicators[-1]['EMA1']}, and the RSI is {indicators[-1]['RSI']}, and the support is {indicators[-1]['support']}, and the resistance is {indicators[-1]['resistance']}. Can you analyze this data? Make a bold statement about it at the end, but be subtle about it. Quote a respected investors and economists at the end. Write this as a short article.  "
-        print(message)
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system",
-                 "content": "You are a highly skilled and knowledgeable financial analyst specializing in the field of cryptocurrencies and blockchain technology. You do not explain the indicators as you assume your interlocutor understands them. You make brief objective statements about the indicators you receive."},
-                {"role": "user", "content": message},
-            ]
-        )
-        analysis = response['choices'][0]['message']['content']
-        return jsonify({'analysis': analysis})
+
+        post_id, adapted_analysis, _ = bot.analyze_with_gpt3(symbol, indicators)
+
+        return jsonify({'post_id': post_id, 'adapted_analysis': adapted_analysis})
     except Exception as e:
         print(f"Exception occurred: {e}")
         return jsonify({'error': str(e)}), 500
-
 
 
 @bp.route('/analyze-btc', methods=['GET'])
@@ -307,7 +329,7 @@ def detailed_report():
             {"role": "user", "content": summary_message},
         ]
     )
-    summary = response['choices'][0]['message']['content']
+    summary = response['choices'][0]['message']['content']['analysis']
 
     post_id = bot.create_blog_post("Detailed Analysis Summary", summary)
 

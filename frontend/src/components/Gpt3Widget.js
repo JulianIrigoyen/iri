@@ -6,17 +6,20 @@ const PreContainer = styled.div`
   overflow-x: auto;
 `;
 
-const ChatGPT3Tab = styled.div`
+const TabContainer = styled.div`
   background-color: #f9fafb;
   border-radius: 10px;
   padding: 2rem;
   margin-bottom: 1rem;
   box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  align-items: flex-start;
 
   h2 {
     color: #333;
     font-size: 1.2rem;
     margin-bottom: 1rem;
+    text-align: left;
   }
 
   input, select {
@@ -42,40 +45,11 @@ const ChatGPT3Tab = styled.div`
   }
 `;
 
-const TabContent = styled.div`
-  background-color: #f9fafb;
-  border-radius: 10px;
-  padding: 2rem;
-  margin-bottom: 1rem;
-  box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.2);
-
-  h2 {
-    color: #333;
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
-  }
-
-  input, select {
-    width: 100%;
-    padding: 0.5rem;
-    margin-bottom: 1rem;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-  }
-
-  button {
-    background-color: #333;
-    color: #fff;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-
-    &:hover {
-      background-color: #444;
-    }
-  }
+const AnalysisText = styled.p`
+  text-align: justify;
+  font-size: 16px;
+  line-height: 1.5;
+  margin-top: 1em;
 `;
 
 const WidgetContainer = styled.div`
@@ -111,34 +85,7 @@ const TabButton = styled.button`
     transform: scale(1.1);
   }
 `;
-
-
-const Heading = styled.h2`
-  font-size: 1.5rem;
-  color: var(--color-primary);
-  margin-bottom: 0.5rem;
-`;
-
-const Body = styled.p`
-  text-align: justify;
-  line-height: 1.5;
-`;
-
-const ActionButton = styled.button`
-  background-color: var(--color-btn);
-  color: #ffffff;
-  border: none;
-  padding: 0.5rem 1rem;
-  margin-top: 0.5rem;
-  border-radius: 5px;
-  transition: background-color var(--transition-speed);
-
-  &:hover {
-    background-color: darken(var(--color-btn), 10%);
-  }
-`;
-
-const symbols = ["BTC", "ETH", "ADA"]; //"MATIC","BNB","XRP","SOL","DOT","UNI","AVAX","LINK","XMR"
+const symbols = ["BTC", "ETH", "ADA", "MATIC","BNB","XRP","SOL","DOT","UNI","AVAX","LINK","XMR"]; //"MATIC","BNB","XRP","SOL","DOT","UNI","AVAX","LINK","XMR"
 
 const GPTWidget = () => {
     const [activeTab, setActiveTab] = useState("chat");
@@ -211,11 +158,21 @@ const GPTWidget = () => {
     };
 
     const analyzeSymbol = () => {
-        fetch(`/analyze/${selectedSymbol}`)
-            .then(response => response.json())
-            .then(data => setAnalysis(data.analysis))
-            .catch((error) => console.error('Error:', error));
-    };
+    fetch(`/analyze/${selectedSymbol}`)
+        .then(response => {
+            if (!response.ok) throw new Error("Network response was not ok");
+            return response.json();
+        })
+        .then(data => {
+            console.log(data); // check what's actually in your data
+            setAnalysis(data.adapted_analysis);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            setAnalysis(null);
+        });
+};
+
 
     return (
         <WidgetContainer>
@@ -225,8 +182,8 @@ const GPTWidget = () => {
                 <TabButton onClick={() => setActiveTab("fun")}>Fun Talk</TabButton>
                 <TabButton onClick={() => setActiveTab("web3")}>Web3 Talk</TabButton>
             </div>
-            {activeTab === "chat" &&
-                <ChatGPT3Tab>
+            {activeTab === "chat" && (
+                <TabContainer>
                     <h2>Ask GPT-3</h2>
                     <input
                         type="text"
@@ -236,37 +193,29 @@ const GPTWidget = () => {
                     />
                     <button onClick={askGPT3}>Ask GPT-3</button>
                     {response && <pre>{response}</pre>}
-                </ChatGPT3Tab>
-            }
-            {activeTab === "fin" &&
-                <>
-                    <Heading>Fin Talk</Heading>
+                </TabContainer>
+            )}
+            {activeTab === "fin" && (
+                <TabContainer>
+                    <h2>Fin Talk</h2>
                     <select value={selectedSymbol} onChange={handleSymbolChange}>
                         {symbols.map(symbol => (
                             <option key={symbol} value={symbol}>{symbol}</option>
                         ))}
                     </select>
-                    <ActionButton onClick={analyzeSymbol}>Analyze</ActionButton>
-                    <ActionButton onClick={handleDetailedReport}>Detailed report</ActionButton>
-                    {analysis && <Body>{analysis}</Body>}
-                </>
-            }
-            {activeTab === "fun" &&
-                <>
-                    <Heading>Fun Talk</Heading>
-                    {fundamentals &&
-                        Object.keys(fundamentals).map(key => (
-                            <div key={key}>
-                                <h3>{key}</h3>
-                                <Body>{JSON.stringify(fundamentals[key])}</Body>
-                            </div>
-                        ))
-                    }
-                </>
-            }
-            {activeTab === "web3" &&
-                <TabContent>
-                    <h2>Web3 Data Fetch</h2>
+                    <button onClick={analyzeSymbol}>Analyze</button>
+                    {analysis && <AnalysisText>{analysis}</AnalysisText>}
+                </TabContainer>
+            )}
+            {activeTab === "fun" && (
+                <TabContainer>
+                    <h2>Fun Talk</h2>
+                    {/* Implement Fun Talk functionality */}
+                </TabContainer>
+            )}
+            {activeTab === "web3" && (
+                <TabContainer>
+                    <h2>Web3 Talk</h2>
                     <input
                         type="text"
                         value={contractAddress}
@@ -289,8 +238,8 @@ const GPTWidget = () => {
                     {onchainData && <PreContainer>
                         <pre>{JSON.stringify(onchainData, null, 2)}</pre>
                     </PreContainer>}
-                </TabContent>
-            }
+                </TabContainer>
+            )}
         </WidgetContainer>
     );
 };
