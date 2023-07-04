@@ -1,5 +1,27 @@
 import React, {useState} from 'react';
-import styled from 'styled-components';
+import styled, {keyframes} from 'styled-components';
+import loadingImage from '../public/images/loading.png';
+
+const LoadingSection = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+`;
+
+const spin = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const LoadingImage = styled.img`
+  width: 30px;
+  animation: ${spin} 2s linear infinite; // Applies the spinning animation
+`;
+
 
 const PreContainer = styled.div`
   max-width: 100%;
@@ -85,7 +107,7 @@ const TabButton = styled.button`
     transform: scale(1.1);
   }
 `;
-const symbols = ["BTC", "ETH", "ADA", "MATIC","BNB","XRP","SOL","DOT","UNI","AVAX","LINK","XMR"]; //"MATIC","BNB","XRP","SOL","DOT","UNI","AVAX","LINK","XMR"
+const symbols = ["BTC", "ETH", "ADA", "MATIC", "BNB", "XRP", "SOL", "DOT", "UNI", "AVAX", "LINK", "XMR"]; //"MATIC","BNB","XRP","SOL","DOT","UNI","AVAX","LINK","XMR"
 
 const GPTWidget = () => {
     const [activeTab, setActiveTab] = useState("chat");
@@ -95,6 +117,8 @@ const GPTWidget = () => {
     const [analysis, setAnalysis] = useState(null);
     const [fundamentals, setFundamentals] = useState(null);
     const [onchainData, setOnchainData] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+
 
     //web3 tab data
     const [contractAddress, setContractAddress] = useState(""); // Placeholder, replace with actual Ethereum address
@@ -158,27 +182,29 @@ const GPTWidget = () => {
     };
 
     const analyzeSymbol = () => {
-    fetch(`/analyze/${selectedSymbol}`)
-        .then(response => {
-            if (!response.ok) throw new Error("Network response was not ok");
-            return response.json();
-        })
-        .then(data => {
-            console.log(data); // check what's actually in your data
-            setAnalysis(data.adapted_analysis);
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-            setAnalysis(null);
-        });
-};
+        setIsLoading(true);
+        fetch(`/analyze/${selectedSymbol}`)
+            .then(response => {
+                if (!response.ok) throw new Error("Network response was not ok");
+                return response.json();
+            })
+            .then(data => {
+                setAnalysis(data.adapted_analysis);
+                setIsLoading(false);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                setAnalysis(null);
+                setIsLoading(false);
+            });
+    };
 
 
     return (
         <WidgetContainer>
             <div>
                 <TabButton onClick={() => setActiveTab("chat")}>Chat GPT-3</TabButton>
-                <TabButton onClick={() => setActiveTab("fin")}>Fin Talk</TabButton>
+                <TabButton onClick={() => setActiveTab("crypto-tldr")}>Crypto TLDR</TabButton>
                 <TabButton onClick={() => setActiveTab("fun")}>Fun Talk</TabButton>
                 <TabButton onClick={() => setActiveTab("web3")}>Web3 Talk</TabButton>
             </div>
@@ -195,16 +221,20 @@ const GPTWidget = () => {
                     {response && <pre>{response}</pre>}
                 </TabContainer>
             )}
-            {activeTab === "fin" && (
+            {activeTab === "crypto-tldr" && (
                 <TabContainer>
-                    <h2>Fin Talk</h2>
+                    <h2>Crypto TLDR</h2>
                     <select value={selectedSymbol} onChange={handleSymbolChange}>
                         {symbols.map(symbol => (
                             <option key={symbol} value={symbol}>{symbol}</option>
                         ))}
                     </select>
-                    <button onClick={analyzeSymbol}>Analyze</button>
-                    {analysis && <AnalysisText>{analysis}</AnalysisText>}
+                    <LoadingSection>
+                        <button onClick={analyzeSymbol}>Analyze</button>
+                        {isLoading && <LoadingImage src={loadingImage} alt="Loading..."/>}
+                    </LoadingSection>
+                    {!isLoading && analysis && <AnalysisText>{analysis}</AnalysisText>}
+
                 </TabContainer>
             )}
             {activeTab === "fun" && (
