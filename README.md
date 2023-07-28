@@ -1,12 +1,7 @@
-Read the flask documentation to understand how this project is set up. 
-https://flask.palletsprojects.com/en/2.3.x/tutorial/layout/
 
-PoC Includes user authentication, enforced with the @login_required annotation (see blog.py for examples)
+PoC - Easily setup python flask app with sqlite db and react frontend. This project was created to test OpenAI's APIs in conjuction with various market APIs (eg - binance.py).
 
-binance.py defines a client for the Binance API with analysis reports generated with Chat GPT. 
-Simple plots are supported. 
-
-To execute Iribot: 
+To execute: 
 
     Create a .env file next to the .env.example with that format with your api keys
     Create and activate a python virtual environment - from the root directory (iri):
@@ -31,16 +26,23 @@ To interact with DB:
     
         ```sqlite3```
 
-    Connect to your Flask SQLite database file. If your Flask application uses a SQLite database, the database file is typically stored in your project directory with a .db extension. You can connect to the database by running the following command:
+    Connect to your Flask SQLite database file. If your Flask application uses a SQLite database, the database file is typically stored in         your project directory with a .db extension. You can connect to the database by running the following command:
         ```  .open path/to/your/database.db ```
+    
     Replace path/to/your/database.db with the actual path to your SQLite database file. See the instance directory. 
     eg /Users/iri369/code/python/iri/instance/iribot.sqlite
-    Once connected, you can run various SQLite commands to interact with the database. For example, you can query the tables, insert data, update records, or perform other SQL operations. Here are some commonly used SQLite commands:
+    
+    Once connected, you can run various SQLite commands to interact with the database. For example, you can query the tables, insert data,         update records, or perform other SQL operations. Here are some commonly used SQLite commands:
 
     To view the tables in the database:
     ```.tables```
 
+
+https://flask.palletsprojects.com/en/2.3.x/tutorial/layout/
+
 To run the FE (localhost:3000): 
+ ```
     cd frontend/src
     npm install
     npm start
+ ```
